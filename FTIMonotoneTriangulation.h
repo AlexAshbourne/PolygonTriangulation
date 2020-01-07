@@ -1,11 +1,9 @@
 //////////////////////////////////////////////////////////////////////
 //
-// FTIMonotoneTriangulation.h: This class will take as input a doubly 
+// MonotoneTriangulation.h: This class will take as input a doubly 
 // connected edge list for a polygon that has been subdivided into
 // y-monotone sub-polygons. It will perform a triangulation on the 
 // sub polygons
-//
-// Company: Forming Technologies Inc.
 //
 // REVISIONS:
 //  Feb. 16, 2017 created (Alex Ashbourne)
@@ -23,27 +21,27 @@
 #endif
 
 
-#include "FTIDblyConnectedEdgeList.h"
-#include "FTIMonotonePolygon.h"
+#include "DblyConnectedEdgeList.h"
+#include "MonotonePolygon.h"
 
 //====================================================================
 // DESCRIPTION: This class allows for the efficient triangulation of 
 // a monotone polygon. We can triangulate any simple polygon, provided 
 // we have access to the monotono subdivision.
 //====================================================================
-class FTIMonotoneTriangulation
+class MonotoneTriangulation
 {
 public:
 
 	//====================================================================
 	// DESCRIPTION: Defualt constructor
 	//====================================================================
-	FTIMonotoneTriangulation() : m_poMonotoneDCEL(0) {}
+	MonotoneTriangulation() : m_poMonotoneDCEL(0) {}
 
 	//====================================================================
 	// DESCRIPTION: Constructor from DCEL - assumed to have monotone subdivision
 	//====================================================================
-	explicit FTIMonotoneTriangulation(FTIDblyConnectedEdgeList *&i_poInputDCEL)
+	explicit MonotoneTriangulation(DblyConnectedEdgeList *&i_poInputDCEL)
 	{
 		m_poMonotoneDCEL = i_poInputDCEL;
 	}
@@ -52,7 +50,7 @@ public:
 	// DESCRIPTION: Constructor from monotone polygon object - assumed to 
 	// already have monotone subdivision
 	//====================================================================
-	explicit FTIMonotoneTriangulation(FTIMonotonePolygon &i_poMonotonePolygon)
+	explicit MonotoneTriangulation(MonotonePolygon &i_poMonotonePolygon)
 	{
 		m_poMonotoneDCEL = i_poMonotonePolygon.getDCEL();
 	}
@@ -60,7 +58,7 @@ public:
 	//====================================================================
 	// DESCRIPTION: Destructor
 	//====================================================================
-	~FTIMonotoneTriangulation()
+	~MonotoneTriangulation()
 	{
 		//std::cout << "Triangulation delete \n" << std::endl;
 		if(!((m_poMonotoneDCEL->getNumVertex() == 0) &&(m_poMonotoneDCEL->getNumEdges() == 0) &&(m_poMonotoneDCEL->getNumFaces() == 0)))
@@ -74,7 +72,7 @@ public:
 	//====================================================================
 	// DESCRIPTION: Copy Constructor
 	//====================================================================
-	FTIMonotoneTriangulation(const FTIMonotoneTriangulation &i_oRHSMonoTriangle)
+	MonotoneTriangulation(const MonotoneTriangulation &i_oRHSMonoTriangle)
 	{
 		m_poMonotoneDCEL = i_oRHSMonoTriangle.m_poMonotoneDCEL;
 	}
@@ -82,7 +80,7 @@ public:
 	//====================================================================
 	// DESCRIPTION: Assignment operator
 	//====================================================================
-	FTIMonotoneTriangulation &operator= (const FTIMonotoneTriangulation &i_oRHSMonoTriangle)
+	MonotoneTriangulation &operator= (const MonotoneTriangulation &i_oRHSMonoTriangle)
 	{
 		if(this != &i_oRHSMonoTriangle)
 			m_poMonotoneDCEL = i_oRHSMonoTriangle.m_poMonotoneDCEL;
@@ -92,7 +90,7 @@ public:
 	//====================================================================
 	// DESCRIPTION: Get pointer to DCEL
 	//====================================================================
-	FTIDblyConnectedEdgeList* getDCEL() {return m_poMonotoneDCEL;}
+	DblyConnectedEdgeList* getDCEL() {return m_poMonotoneDCEL;}
 
 	//====================================================================
 	// DESCRIPTION: Public function to call private function to triangulate
@@ -106,40 +104,40 @@ private:
 	// DESCRIPTION: Function to get all verticies in CCW order around a face
 	// INPUT: Pointer to query face
 	//====================================================================
-	std::vector<FTIPolyVertex*> GetAllVertices(FTIPolyFace *i_poPolyFace);
+	std::vector<PolyVertex*> GetAllVertices(PolyFace *i_poPolyFace);
 
 	//====================================================================
 	// DESCRIPTION: Function to get all verticies in left chain of a face
 	// INPUT: Vector of pointers to vertices on face, pointer to query face
 	//====================================================================
-	std::vector<FTIPolyVertex*> GetLeftChain(std::vector<FTIPolyVertex*> i_oAllVertices, FTIPolyFace *i_poPolyFace);
+	std::vector<PolyVertex*> GetLeftChain(std::vector<PolyVertex*> i_oAllVertices, PolyFace *i_poPolyFace);
 
 	//====================================================================
 	// DESCRIPTION: Function to get all verticies in right chain of a face
 	// INPUT: Vector of pointers to vertices on face, pointer to query face
 	//====================================================================
-	std::vector<FTIPolyVertex*> GetRightChain(std::vector<FTIPolyVertex*> i_oAllVertices, FTIPolyFace *i_poPolyFace);
+	std::vector<PolyVertex*> GetRightChain(std::vector<PolyVertex*> i_oAllVertices, PolyFace *i_poPolyFace);
 
 	//====================================================================
 	// DESCRIPTION: Boolean function to determine if vertex is in a particular
 	// chain. True if it is, false if it is NOT
 	// INPUT: Vector of pointers to vertices on face, pointer to query face
 	//====================================================================
-	bool IsInChain(FTIPolyVertex *i_poVertex, std::vector<FTIPolyVertex*> i_oChain);
+	bool IsInChain(PolyVertex *i_poVertex, std::vector<PolyVertex*> i_oChain);
 
 	//====================================================================
 	// DESCRIPTION: Boolean function to determine if two vertices are NOT in
 	// the same chain. True if they ARE NOT, false if THEY ARE.
 	// INPUT: Pointers to both vertices, one of the chains
 	//====================================================================
-	bool NotInSameChain(FTIPolyVertex *i_poVertex1, FTIPolyVertex *i_poVertex2, std::vector<FTIPolyVertex*> i_oChain);
+	bool NotInSameChain(PolyVertex *i_poVertex1, PolyVertex *i_poVertex2, std::vector<PolyVertex*> i_oChain);
 
 	//====================================================================
 	// DESCRIPTION: Private function that will triangulate a monotone face 
 	// of a polygon.
 	// INPUTS: pointer to face, pointer to DCEL.
 	//====================================================================
-	void TriangulateMonotonePolygon(FTIPolyFace *&i_poFace, FTIDblyConnectedEdgeList *&io_poMonotoneDCEL);
+	void TriangulateMonotonePolygon(PolyFace *&i_poFace, DblyConnectedEdgeList *&io_poMonotoneDCEL);
 
-	FTIDblyConnectedEdgeList *m_poMonotoneDCEL; // the doubly connected edge list which holds the triangulation.
+	DblyConnectedEdgeList *m_poMonotoneDCEL; // the doubly connected edge list which holds the triangulation.
 };

@@ -1,31 +1,29 @@
 //////////////////////////////////////////////////////////////////////
 //
-// FTIMonotoneTriangulation.cpp: This class will take as input a doubly 
+// MonotoneTriangulation.cpp: This class will take as input a doubly 
 // connected edge list for a polygon that has been subdivided into
 // y-monotone sub-polygons. It will perform a triangulation on the 
 // sub polygons
-//
-// Company: Forming Technologies Inc.
 //
 // REVISIONS:
 //  Feb. 16, 2017 created (Alex Ashbourne)
 //
 //////////////////////////////////////////////////////////////////////
-#include "FTIMonotoneTriangulation.h"
+#include "MonotoneTriangulation.h"
 
 //====================================================================
 // DESCRIPTION: Get all vertices in CCW around a given face
 // INPUT: Pointer to query face
 //====================================================================
-std::vector<FTIPolyVertex*> FTIMonotoneTriangulation::GetAllVertices(FTIPolyFace *i_poPolyFace)
+std::vector<PolyVertex*> MonotoneTriangulation::GetAllVertices(PolyFace *i_poPolyFace)
 {
-	std::vector<FTIPolyVertex*> AllVertices;
+	std::vector<PolyVertex*> AllVertices;
 
-	FTIHalfEdge* StartEdge = i_poPolyFace->getEdge();
+	HalfEdge* StartEdge = i_poPolyFace->getEdge();
 
 	AllVertices.push_back(StartEdge->getOrigin());
 
-	FTIHalfEdge* IndexEdge = StartEdge->getNext();
+	HalfEdge* IndexEdge = StartEdge->getNext();
 
 	while( *IndexEdge != *StartEdge)
 	{
@@ -34,7 +32,7 @@ std::vector<FTIPolyVertex*> FTIMonotoneTriangulation::GetAllVertices(FTIPolyFace
 		IndexEdge = IndexEdge ->getNext();
 	};
 
-	std::sort(AllVertices.begin(), AllVertices.end(), FTIPolyVertex::FTIPolyVertexDescendingOrder());
+	std::sort(AllVertices.begin(), AllVertices.end(), PolyVertex::PolyVertexDescendingOrder());
 
 	return AllVertices;
 };
@@ -43,16 +41,16 @@ std::vector<FTIPolyVertex*> FTIMonotoneTriangulation::GetAllVertices(FTIPolyFace
 // DESCRIPTION: Get all vertices in left chain of a given face
 // INPUT: Vector of pointers to vertices on face, pointer to query face
 //====================================================================
-std::vector<FTIPolyVertex*> FTIMonotoneTriangulation::GetLeftChain(std::vector<FTIPolyVertex*> i_oAllVertices, FTIPolyFace *i_poPolyFace)
+std::vector<PolyVertex*> MonotoneTriangulation::GetLeftChain(std::vector<PolyVertex*> i_oAllVertices, PolyFace *i_poPolyFace)
 {
-	std::vector<FTIPolyVertex*> LeftChain;
+	std::vector<PolyVertex*> LeftChain;
 
-	FTIPolyVertex *LastVertex = (i_oAllVertices[i_oAllVertices.size()-1]);
+	PolyVertex *LastVertex = (i_oAllVertices[i_oAllVertices.size()-1]);
 
-	FTIPolyVertex *IndexVertex = (i_oAllVertices[0]);
+	PolyVertex *IndexVertex = (i_oAllVertices[0]);
 
-	FTIHalfEdge *StartEdge = IndexVertex->getEdge();
-	FTIHalfEdge *IndexEdge = IndexVertex->getEdge();
+	HalfEdge *StartEdge = IndexVertex->getEdge();
+	HalfEdge *IndexEdge = IndexVertex->getEdge();
 	do{
 		if(IndexEdge->getFace() == i_poPolyFace)
 			break;
@@ -77,16 +75,16 @@ std::vector<FTIPolyVertex*> FTIMonotoneTriangulation::GetLeftChain(std::vector<F
 // DESCRIPTION: Function to get all verticies in right chain of a face
 // INPUT: Vector of pointers to vertices on face, pointer to query face
 //====================================================================
-std::vector<FTIPolyVertex*> FTIMonotoneTriangulation::GetRightChain(std::vector<FTIPolyVertex*> i_oAllVertices, FTIPolyFace *i_poPolyFace)
+std::vector<PolyVertex*> MonotoneTriangulation::GetRightChain(std::vector<PolyVertex*> i_oAllVertices, PolyFace *i_poPolyFace)
 {
-	std::vector<FTIPolyVertex*> RightChain;
+	std::vector<PolyVertex*> RightChain;
 
-	FTIPolyVertex *LastVertex = (i_oAllVertices[i_oAllVertices.size()-1]);
+	PolyVertex *LastVertex = (i_oAllVertices[i_oAllVertices.size()-1]);
 
-	FTIPolyVertex *IndexVertex = (i_oAllVertices[0]);
+	PolyVertex *IndexVertex = (i_oAllVertices[0]);
 
-	FTIHalfEdge *StartEdge = IndexVertex->getEdge();
-	FTIHalfEdge *IndexEdge = IndexVertex->getEdge();
+	HalfEdge *StartEdge = IndexVertex->getEdge();
+	HalfEdge *IndexEdge = IndexVertex->getEdge();
 	do{
 		if(IndexEdge->getFace() == i_poPolyFace)
 			break;
@@ -113,7 +111,7 @@ std::vector<FTIPolyVertex*> FTIMonotoneTriangulation::GetRightChain(std::vector<
 //
 // INPUT: Pointer to vertex, chain of vertices
 //====================================================================
-bool FTIMonotoneTriangulation::IsInChain(FTIPolyVertex *i_poVertex, std::vector<FTIPolyVertex*> i_oChain)
+bool MonotoneTriangulation::IsInChain(PolyVertex *i_poVertex, std::vector<PolyVertex*> i_oChain)
 {
 	for(unsigned int i = 0; i < i_oChain.size(); i++)
 	{
@@ -131,7 +129,7 @@ bool FTIMonotoneTriangulation::IsInChain(FTIPolyVertex *i_poVertex, std::vector<
 //
 // INPUT: Pointers to two vertices and one of the chains
 //====================================================================
-bool FTIMonotoneTriangulation::NotInSameChain(FTIPolyVertex *i_poVertex1, FTIPolyVertex *i_poVertex2, std::vector<FTIPolyVertex*> i_oChain)
+bool MonotoneTriangulation::NotInSameChain(PolyVertex *i_poVertex1, PolyVertex *i_poVertex2, std::vector<PolyVertex*> i_oChain)
 {
 	if (IsInChain(i_poVertex1, i_oChain) && IsInChain(i_poVertex2, i_oChain))
 		return false;
@@ -147,11 +145,11 @@ bool FTIMonotoneTriangulation::NotInSameChain(FTIPolyVertex *i_poVertex1, FTIPol
 // DESCRIPTION: Function looping through each monotone face of a 
 // monotone subdivision. Calls private function to triangulate a face
 //====================================================================
-void FTIMonotoneTriangulation::TriangulatePolygon()
+void MonotoneTriangulation::TriangulatePolygon()
 {
 	int nNumFaces = m_poMonotoneDCEL->getNumFaces();
 
-	std::vector<FTIPolyFace*> Vector_Faces = m_poMonotoneDCEL->getFaces();
+	std::vector<PolyFace*> Vector_Faces = m_poMonotoneDCEL->getFaces();
 
 	for(int i = 1; i < nNumFaces; i++)
 	{
@@ -165,17 +163,17 @@ void FTIMonotoneTriangulation::TriangulatePolygon()
 // INPUT: pointer to the face which will be triangulated, pointer to reference 
 // of DCEL.
 //====================================================================
-void FTIMonotoneTriangulation::TriangulateMonotonePolygon(FTIPolyFace *&i_poPolyFace, FTIDblyConnectedEdgeList *&io_poMonotoneDCEL)
+void MonotoneTriangulation::TriangulateMonotonePolygon(PolyFace *&i_poPolyFace, DblyConnectedEdgeList *&io_poMonotoneDCEL)
 {
 	// Sort Vertices in descending order
-	std::vector<FTIPolyVertex*> AllVertices = GetAllVertices(i_poPolyFace);
+	std::vector<PolyVertex*> AllVertices = GetAllVertices(i_poPolyFace);
 	// Create Left Chain of vertices 
-	std::vector<FTIPolyVertex*> LeftChain = GetLeftChain(AllVertices, i_poPolyFace);
+	std::vector<PolyVertex*> LeftChain = GetLeftChain(AllVertices, i_poPolyFace);
 	// Create Right Chain of vertices (not necessary?)
-	std::vector<FTIPolyVertex*> RightChain = GetRightChain(AllVertices, i_poPolyFace);
+	std::vector<PolyVertex*> RightChain = GetRightChain(AllVertices, i_poPolyFace);
 
 	// Initialize an empty stack
-	std::vector<FTIPolyVertex*> VertexStack;
+	std::vector<PolyVertex*> VertexStack;
 
 	int nNumVert = AllVertices.size();
 
@@ -190,11 +188,11 @@ void FTIMonotoneTriangulation::TriangulateMonotonePolygon(FTIPolyFace *&i_poPoly
 			for(int j = VertexStack.size()-1; j > 0; j--)
 			{
 				// Get vertex from the stack
-				FTIPolyVertex *NewVertex = VertexStack.back();
+				PolyVertex *NewVertex = VertexStack.back();
 
 				// create new edge
-				FTIPolyVertex* MaxVert = GetMax(AllVertices[i], NewVertex);
-				FTIPolyVertex* MinVert = GetMin(AllVertices[i], NewVertex);
+				PolyVertex* MaxVert = GetMax(AllVertices[i], NewVertex);
+				PolyVertex* MinVert = GetMin(AllVertices[i], NewVertex);
 				io_poMonotoneDCEL -> InsertNewEdge(MaxVert, MinVert);
 
 				// pop vertex from the stack
@@ -211,7 +209,7 @@ void FTIMonotoneTriangulation::TriangulateMonotonePolygon(FTIPolyFace *&i_poPoly
 		}
 		else // vertices are in the same chain
 		{
-			FTIPolyVertex *TestVertex = VertexStack.back();
+			PolyVertex *TestVertex = VertexStack.back();
 
 			VertexStack.pop_back();
 
@@ -219,14 +217,14 @@ void FTIMonotoneTriangulation::TriangulateMonotonePolygon(FTIPolyFace *&i_poPoly
 			while(!VertexStack.empty())
 			{
 				// Get vertex from the stack
-				FTIPolyVertex *NewVertex = VertexStack.back();
+				PolyVertex *NewVertex = VertexStack.back();
 
 				if(IsInChain(AllVertices[i], LeftChain))
 				{// if vertex is in left chain, insert new edge if orientation > 0
 					if(Orientation(TestVertex, AllVertices[i], NewVertex) > 0)
 					{
-						FTIPolyVertex* MaxVert = GetMax(AllVertices[i], NewVertex);
-						FTIPolyVertex* MinVert = GetMin(AllVertices[i], NewVertex);
+						PolyVertex* MaxVert = GetMax(AllVertices[i], NewVertex);
+						PolyVertex* MinVert = GetMin(AllVertices[i], NewVertex);
 						io_poMonotoneDCEL -> InsertNewEdge(MaxVert, MinVert);
 					}
 					else
@@ -238,8 +236,8 @@ void FTIMonotoneTriangulation::TriangulateMonotonePolygon(FTIPolyFace *&i_poPoly
 				{// if vertex is in right chain, insert new edge if orientation < 0
 					if(Orientation(TestVertex, AllVertices[i], NewVertex) < 0)
 					{
-						FTIPolyVertex* MaxVert = GetMax(AllVertices[i], NewVertex);
-						FTIPolyVertex* MinVert = GetMin(AllVertices[i], NewVertex);
+						PolyVertex* MaxVert = GetMax(AllVertices[i], NewVertex);
+						PolyVertex* MinVert = GetMin(AllVertices[i], NewVertex);
 						io_poMonotoneDCEL -> InsertNewEdge(MaxVert, MinVert);
 					}
 					else
@@ -273,11 +271,11 @@ void FTIMonotoneTriangulation::TriangulateMonotonePolygon(FTIPolyFace *&i_poPoly
 	for(int j = VertexStack.size()-1; j > 0; j--)
 	{
 		// Get vertex from the stack
-		FTIPolyVertex *NewVertex = VertexStack.back();
+		PolyVertex *NewVertex = VertexStack.back();
 
 		// create new edge
-		FTIPolyVertex* MaxVert = GetMax(AllVertices[AllVertices.size()-1], NewVertex);
-		FTIPolyVertex* MinVert = GetMin(AllVertices[AllVertices.size()-1], NewVertex);
+		PolyVertex* MaxVert = GetMax(AllVertices[AllVertices.size()-1], NewVertex);
+		PolyVertex* MinVert = GetMin(AllVertices[AllVertices.size()-1], NewVertex);
 		io_poMonotoneDCEL -> InsertNewEdge(MaxVert, MinVert);
 
 		// pop vertex from the stack

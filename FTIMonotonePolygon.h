@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// FTIMonotonePolygon.h: This class is used to take any simple n-sided
+// MonotonePolygon.h: This class is used to take any simple n-sided
 // polygon and decompose it into a set of y-monotone polygons.
 // The original polygon is inputted as a doubly connected edge list.
 //
@@ -9,8 +9,6 @@
 // are the verticies and are handled in a binary search tree.
 //
 // Elements of the tree are edges
-//
-// Company: Forming Technologies Inc.
 //
 // REVISIONS:
 //  Feb. 16, 2017 created (Alex Ashbourne)
@@ -35,29 +33,29 @@ enum
 #include <algorithm>
 #include <iostream>
 #include <math.h>
-#include "FTIDblyConnectedEdgeList.h"
-#include "FTIEdgeSearchTree.h"
+#include "DblyConnectedEdgeList.h"
+#include "EdgeSearchTree.h"
 
 
 //====================================================================
 // DESCRIPTION: Class that will allow use to partition an arbitrary 
 // polygon into monotone segments 
 //====================================================================
-class FTIMonotonePolygon
+class MonotonePolygon
 {
 public:
 	//====================================================================
 	// DESCRIPTION: Construct class from vector of polygon vertices in CCW
 	// order by calling constructor for DCEL class
 	//====================================================================
-	explicit FTIMonotonePolygon(std::vector<double> i_adPolygonVertices) 
+	explicit MonotonePolygon(std::vector<double> i_adPolygonVertices) 
 	{
-		m_poPolygonDCEL = new FTIDblyConnectedEdgeList(i_adPolygonVertices);
+		m_poPolygonDCEL = new DblyConnectedEdgeList(i_adPolygonVertices);
 	}
 	//====================================================================
 	// DESCRIPTION: Constructor from pointer to DCEL
 	//====================================================================
-	explicit FTIMonotonePolygon(FTIDblyConnectedEdgeList *&i_poInputDCEL) 
+	explicit MonotonePolygon(DblyConnectedEdgeList *&i_poInputDCEL) 
 	{
 		m_poPolygonDCEL = i_poInputDCEL;
 	}
@@ -65,7 +63,7 @@ public:
 	//====================================================================
 	// DESCRIPTION: Copy Constructor
 	//====================================================================
-	FTIMonotonePolygon(const FTIMonotonePolygon &i_oRHSMontonePolygon) 
+	MonotonePolygon(const MonotonePolygon &i_oRHSMontonePolygon) 
 	{
 		m_poPolygonDCEL = i_oRHSMontonePolygon.m_poPolygonDCEL;
 	};
@@ -73,7 +71,7 @@ public:
 	//====================================================================
 	// DESCRIPTION: Assignment operator
 	//====================================================================
-	FTIMonotonePolygon &operator= (const FTIMonotonePolygon &i_oRHSMontonePolygon) 
+	MonotonePolygon &operator= (const MonotonePolygon &i_oRHSMontonePolygon) 
 	{
 		if(this != &i_oRHSMontonePolygon)
 			m_poPolygonDCEL = i_oRHSMontonePolygon.m_poPolygonDCEL;
@@ -83,7 +81,7 @@ public:
 	//====================================================================
 	// DESCRIPTION: Destructor
 	//====================================================================
-	~FTIMonotonePolygon()
+	~MonotonePolygon()
 	{
 		//std::cout << "Monotone delete \n" << std::endl;
 		// check to see if DCEL is empty
@@ -99,7 +97,7 @@ public:
 	//====================================================================
 	// DESCRIPTION: Return pointer to DCEL
 	//====================================================================
-	FTIDblyConnectedEdgeList* getDCEL() {return m_poPolygonDCEL;}
+	DblyConnectedEdgeList* getDCEL() {return m_poPolygonDCEL;}
 
 	//====================================================================
 	// DESCRIPTION: Public function for polygon subdivision into monotone
@@ -114,35 +112,35 @@ private:
 	// INPUTS: pointer to vertex to test and pointer to face we are viewing 
 	// the vertex from
 	//====================================================================
-	unsigned int VertexKind(FTIPolyVertex *i_poInputVertex, FTIPolyFace *i_poFace);
+	unsigned int VertexKind(PolyVertex *i_poInputVertex, PolyFace *i_poFace);
 
 	//====================================================================
 	// DESCRIPTION: Public function to insert an edge from a vertex to the "helper"
 	// of an edge currently being handled by the sweep line algorithm
 	//====================================================================
-	void FixUp(FTIEdgeNode *i_poEdgeNode, FTIPolyVertex *i_poVertex);
+	void FixUp(EdgeNode *i_poEdgeNode, PolyVertex *i_poVertex);
 
 	//====================================================================
 	// DESCRIPTION: Functions that will handle vertices based on their kind
 	// INPUT: Pointer to vertex, pointer to reference to the search tree.
 	//====================================================================
-	void HandleStartVertex(FTIPolyVertex *i_poInputVertex, FTIEdgeSearchTree *&i_poTree);
-	void HandleEndVertex(FTIPolyVertex *i_poInputVertex, FTIEdgeSearchTree *&i_poTree);
-	void HandleSplitVertex(FTIPolyVertex *i_poInputVertex, FTIEdgeSearchTree *&i_poTree);
-	void HandleMergeVertex(FTIPolyVertex *i_poInputVertex, FTIEdgeSearchTree *&i_poTree);
-	void HandleRegularVertexLeft(FTIPolyVertex *i_poInputVertex, FTIEdgeSearchTree *&i_poTree);
-	void HandleRegularVertexRight(FTIPolyVertex *i_poInputVertex, FTIEdgeSearchTree *&i_poTree);
+	void HandleStartVertex(PolyVertex *i_poInputVertex, EdgeSearchTree *&i_poTree);
+	void HandleEndVertex(PolyVertex *i_poInputVertex, EdgeSearchTree *&i_poTree);
+	void HandleSplitVertex(PolyVertex *i_poInputVertex, EdgeSearchTree *&i_poTree);
+	void HandleMergeVertex(PolyVertex *i_poInputVertex, EdgeSearchTree *&i_poTree);
+	void HandleRegularVertexLeft(PolyVertex *i_poInputVertex, EdgeSearchTree *&i_poTree);
+	void HandleRegularVertexRight(PolyVertex *i_poInputVertex, EdgeSearchTree *&i_poTree);
 
 	//====================================================================
 	// DESCRIPTION: Private funtion call to Fix Up
 	//====================================================================
-	void FixUp(FTIEdgeNode *i_poEdgeNode, FTIPolyVertex *i_poVertex, FTIDblyConnectedEdgeList *&i_poDCEL);
+	void FixUp(EdgeNode *i_poEdgeNode, PolyVertex *i_poVertex, DblyConnectedEdgeList *&i_poDCEL);
 
 	//====================================================================
 	// DESCRIPTION: Private function call to create monotone subdivision
 	//====================================================================
-	void MakeMonotone(FTIDblyConnectedEdgeList *&i_poDCEL);
+	void MakeMonotone(DblyConnectedEdgeList *&i_poDCEL);
 
-	FTIDblyConnectedEdgeList *m_poPolygonDCEL; // as a member we use the doubly connected edge list.
+	DblyConnectedEdgeList *m_poPolygonDCEL; // as a member we use the doubly connected edge list.
 };
 

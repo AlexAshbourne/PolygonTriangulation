@@ -8,8 +8,6 @@
 //
 // Elements of the tree are edge nodes
 //
-// Company: Forming Technologies Inc.
-//
 // REVISIONS:
 // Feb. 15, 2017 created (Alex Ashbourne)
 //
@@ -29,19 +27,19 @@
 #include <vector>
 #include <algorithm>
 
-#include "FTIDblyConnectedEdgeList.h"
+#include "DblyConnectedEdgeList.h"
 
 static const int ALLOWED_IMBALANCE = 1;
 
-class FTIEdgeNode
+class EdgeNode
 {
 public:
 
-	FTIEdgeNode( FTIHalfEdge* i_poElement ) : m_pElement(i_poElement), m_pLeftElement(0), m_pRightElement(0), m_pHelperVertex(i_poElement->getOrigin()), m_nHeight(0){}
+	EdgeNode( HalfEdge* i_poElement ) : m_pElement(i_poElement), m_pLeftElement(0), m_pRightElement(0), m_pHelperVertex(i_poElement->getOrigin()), m_nHeight(0){}
 
-	FTIEdgeNode( FTIHalfEdge* i_poElement, FTIEdgeNode *i_poLeft, FTIEdgeNode *i_poRight, int i_nHeight = 0)
+	EdgeNode( HalfEdge* i_poElement, EdgeNode *i_poLeft, EdgeNode *i_poRight, int i_nHeight = 0)
 	{
-		//FTIHalfEdge *m_pElement = new FTIHalfEdge;
+		//HalfEdge *m_pElement = new HalfEdge;
 		m_pElement = i_poElement;
 		m_pLeftElement = i_poLeft;
 		m_pRightElement = i_poRight;
@@ -49,56 +47,56 @@ public:
 		m_nHeight = i_nHeight;
 	}
 
-	~FTIEdgeNode()
+	~EdgeNode()
 	{
 		//std::cout << "Edgenode delete \n" << std::endl;
 	}
 
-	FTIEdgeNode(const FTIEdgeNode &i_oRHSFTIEdgeNode)
+	EdgeNode(const EdgeNode &i_oRHSEdgeNode)
 	{
-		m_pElement = i_oRHSFTIEdgeNode.m_pElement;
-		m_pLeftElement = i_oRHSFTIEdgeNode.m_pLeftElement;
-		m_pRightElement = i_oRHSFTIEdgeNode.m_pRightElement;
-		m_pHelperVertex = i_oRHSFTIEdgeNode.m_pHelperVertex;
+		m_pElement = i_oRHSEdgeNode.m_pElement;
+		m_pLeftElement = i_oRHSEdgeNode.m_pLeftElement;
+		m_pRightElement = i_oRHSEdgeNode.m_pRightElement;
+		m_pHelperVertex = i_oRHSEdgeNode.m_pHelperVertex;
 	}
 
-	FTIEdgeNode &operator=(const FTIEdgeNode &i_oRHSFTIEdgeNode)
+	EdgeNode &operator=(const EdgeNode &i_oRHSEdgeNode)
 	{
-		if(this != &i_oRHSFTIEdgeNode)
+		if(this != &i_oRHSEdgeNode)
 		{
-			m_pElement = i_oRHSFTIEdgeNode.m_pElement;
-			m_pLeftElement = i_oRHSFTIEdgeNode.m_pLeftElement;
-			m_pRightElement = i_oRHSFTIEdgeNode.m_pRightElement;
-			m_pHelperVertex = i_oRHSFTIEdgeNode.m_pHelperVertex;
+			m_pElement = i_oRHSEdgeNode.m_pElement;
+			m_pLeftElement = i_oRHSEdgeNode.m_pLeftElement;
+			m_pRightElement = i_oRHSEdgeNode.m_pRightElement;
+			m_pHelperVertex = i_oRHSEdgeNode.m_pHelperVertex;
 		};
 		return *this;
 	}
 
-	bool operator==(const FTIEdgeNode& i_oOtherFTIEdgeNode)
+	bool operator==(const EdgeNode& i_oOtherEdgeNode)
 	{
-		return (*m_pElement == *(i_oOtherFTIEdgeNode.m_pElement));
+		return (*m_pElement == *(i_oOtherEdgeNode.m_pElement));
 	}
 
-	void setHelper(FTIPolyVertex* i_oHelper){ m_pHelperVertex = i_oHelper; }
+	void setHelper(PolyVertex* i_oHelper){ m_pHelperVertex = i_oHelper; }
 
-	FTIPolyVertex* getHelper() { return m_pHelperVertex; }
+	PolyVertex* getHelper() { return m_pHelperVertex; }
 
-	FTIHalfEdge *m_pElement;
-	FTIEdgeNode *m_pLeftElement;
-	FTIEdgeNode *m_pRightElement;
-	FTIPolyVertex *m_pHelperVertex;
+	HalfEdge *m_pElement;
+	EdgeNode *m_pLeftElement;
+	EdgeNode *m_pRightElement;
+	PolyVertex *m_pHelperVertex;
 	int m_nHeight;
 };
 
-int Height(FTIEdgeNode *i_poEdgeNode); 
+int Height(EdgeNode *i_poEdgeNode); 
 
 
-class FTIEdgeSearchTree
+class EdgeSearchTree
 {
 public:
-	FTIEdgeSearchTree(): m_pEdgeTreeRoot(0) {};
+	EdgeSearchTree(): m_pEdgeTreeRoot(0) {};
 
-	~FTIEdgeSearchTree()
+	~EdgeSearchTree()
 	{
 		//makeEmpty();
 		//if(m_pEdgeTreeRoot != nullptr)
@@ -110,49 +108,49 @@ public:
 // Public call to find most left edge
 //
 //////////////////////////////////////////////////////////////////////
-	FTIHalfEdge* FindMostLeft();
+	HalfEdge* FindMostLeft();
 
 //////////////////////////////////////////////////////////////////////
 //
 // Public call to find node which is closest to the left of a vertex
 //
 //////////////////////////////////////////////////////////////////////
-	FTIEdgeNode* FindClosestLeft(FTIPolyVertex *i_oFTIPolyVertex);
+	EdgeNode* FindClosestLeft(PolyVertex *i_oPolyVertex);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Public call to insert a half edge
 //
 //////////////////////////////////////////////////////////////////////
-	void InsertHalfEdge(FTIHalfEdge* i_poHalfEdge);
+	void InsertHalfEdge(HalfEdge* i_poHalfEdge);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Public call to remove a half edge
 //
 //////////////////////////////////////////////////////////////////////
-	void RemoveHalfEdge(FTIHalfEdge* i_poHalfEdge);
+	void RemoveHalfEdge(HalfEdge* i_poHalfEdge);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Public call to insert an edge node
 //
 //////////////////////////////////////////////////////////////////////
-	void InsertEdgeNode(FTIEdgeNode* i_poEdgeNode);
+	void InsertEdgeNode(EdgeNode* i_poEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Public call to remove an edge node
 //
 //////////////////////////////////////////////////////////////////////
-	void RemoveEdgeNode(FTIEdgeNode* i_poEdgeNode);
+	void RemoveEdgeNode(EdgeNode* i_poEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Public call to find the edge node that holds a half edge
 //
 //////////////////////////////////////////////////////////////////////
-	FTIEdgeNode* FindEdgeNode(FTIHalfEdge* i_poHalfEdge);
+	EdgeNode* FindEdgeNode(HalfEdge* i_poHalfEdge);
 
 //////////////////////////////////////////////////////////////////////
 //
@@ -173,35 +171,35 @@ public:
 // Rotation with left child for balancing
 //
 //////////////////////////////////////////////////////////////////////
-	void rotateWithLeftChild(FTIEdgeNode *& i_poEdgeNode);
+	void rotateWithLeftChild(EdgeNode *& i_poEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Rotation with right child for balancing
 //
 //////////////////////////////////////////////////////////////////////
-	void rotateWithRightChild(FTIEdgeNode *& i_poEdgeNode);
+	void rotateWithRightChild(EdgeNode *& i_poEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Double Rotation with left child for balancing
 //
 //////////////////////////////////////////////////////////////////////
-	void doubleWithLeftChild(FTIEdgeNode *& i_poEdgeNode);
+	void doubleWithLeftChild(EdgeNode *& i_poEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Double Rotation with left child for balancing
 //
 //////////////////////////////////////////////////////////////////////
-	void doubleWithRightChild(FTIEdgeNode *& i_poEdgeNode);
+	void doubleWithRightChild(EdgeNode *& i_poEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Balance tree at given node
 //
 //////////////////////////////////////////////////////////////////////
-	void BalanceTree(FTIEdgeNode *& i_poEdgeNode);
+	void BalanceTree(EdgeNode *& i_poEdgeNode);
 
 private:
 
@@ -210,61 +208,61 @@ private:
 // Private call to recursively insert a half edge
 //
 //////////////////////////////////////////////////////////////////////
-	void InsertHalfEdge(FTIHalfEdge* i_poHalfEdge, FTIEdgeNode *&i_oEdgeNode);
+	void InsertHalfEdge(HalfEdge* i_poHalfEdge, EdgeNode *&i_oEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Private call to recursively remove a half edge
 //
 //////////////////////////////////////////////////////////////////////
-	void RemoveHalfEdge(FTIHalfEdge* i_poHalfEdge, FTIEdgeNode *&i_oEdgeNode);
+	void RemoveHalfEdge(HalfEdge* i_poHalfEdge, EdgeNode *&i_oEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Private call to recursively insert an edge node
 //
 //////////////////////////////////////////////////////////////////////
-	void InsertEdgeNode(FTIEdgeNode* i_poNewEdgeNode, FTIEdgeNode *&i_oEdgeNode);
+	void InsertEdgeNode(EdgeNode* i_poNewEdgeNode, EdgeNode *&i_oEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Private call to recursively remove an edge node
 //
 //////////////////////////////////////////////////////////////////////
-	void RemoveEdgeNode(FTIEdgeNode* i_poNewEdgeNode, FTIEdgeNode *&i_oEdgeNode);
+	void RemoveEdgeNode(EdgeNode* i_poNewEdgeNode, EdgeNode *&i_oEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Private call to empty the tree recurrsively
 //
 //////////////////////////////////////////////////////////////////////
-	void makeEmpty( FTIEdgeNode* &i_poEdgeNode);
+	void makeEmpty( EdgeNode* &i_poEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Private Recursive Function to return the edge node that holds a half edge
 //
 //////////////////////////////////////////////////////////////////////
-	FTIEdgeNode*FindEdgeNode(FTIHalfEdge* i_poHalfEdge, FTIEdgeNode* i_poEdgeNode);
+	EdgeNode*FindEdgeNode(HalfEdge* i_poHalfEdge, EdgeNode* i_poEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Private call to find most left edge
 //
 //////////////////////////////////////////////////////////////////////
-	FTIEdgeNode* FindMostLeft(FTIEdgeNode *i_oEdgeNode);
+	EdgeNode* FindMostLeft(EdgeNode *i_oEdgeNode);
 
 //////////////////////////////////////////////////////////////////////
 //
 // Private call to closest edge to the left of a vertex
 //
 //////////////////////////////////////////////////////////////////////
-	FTIEdgeNode* FindClosestLeft(FTIPolyVertex *i_oFTIPolyVertex, FTIEdgeNode *i_oEdgeNode);
+	EdgeNode* FindClosestLeft(PolyVertex *i_oPolyVertex, EdgeNode *i_oEdgeNode);
 	
 //////////////////////////////////////////////////////////////////////
 //
 // Members of the search tree
 //
 //////////////////////////////////////////////////////////////////////
-	FTIEdgeNode *m_pEdgeTreeRoot; //root of tree
+	EdgeNode *m_pEdgeTreeRoot; //root of tree
 };

@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////
 //
-// FTIMonotonePolygon.h: This class is used to take any simple n-sided
+// MonotonePolygon.h: This class is used to take any simple n-sided
 // polygon and decompose it into a set of y-monotone polygons.
 // The original polygon is inputted as a doubly connected edge list.
 //
@@ -10,14 +10,12 @@
 //
 // Elements of the tree are edges
 //
-// Company: Forming Technologies Inc.
-//
 // REVISIONS:
 //  Feb. 16, 2017 created (Alex Ashbourne)
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "FTIMonotonePolygon.h"
+#include "MonotonePolygon.h"
 
 //====================================================================
 // DESCRIPTION: Function for determining the type of vertex in the polygon
@@ -27,10 +25,10 @@
 //
 // RETURN: unsigned int refering to vertex kind
 //====================================================================
-unsigned int FTIMonotonePolygon::VertexKind(FTIPolyVertex *i_poInputVertex, FTIPolyFace *i_poFace)
+unsigned int MonotonePolygon::VertexKind(PolyVertex *i_poInputVertex, PolyFace *i_poFace)
 {
-	FTIHalfEdge *StartEdge = i_poInputVertex->getEdge();
-	FTIHalfEdge *IndexEdge = i_poInputVertex->getEdge();
+	HalfEdge *StartEdge = i_poInputVertex->getEdge();
+	HalfEdge *IndexEdge = i_poInputVertex->getEdge();
 	do{
 		if(IndexEdge->getFace() == i_poFace)
 			break;
@@ -38,9 +36,9 @@ unsigned int FTIMonotonePolygon::VertexKind(FTIPolyVertex *i_poInputVertex, FTIP
 			IndexEdge = IndexEdge->getTwin()->getNext();
 	}while(IndexEdge != StartEdge);
 	//Get neighbouring Verticies. v1 = left, v2 = right.
-	//FTIPolyVertex Vertex1 = *( i_poInputVertex->getEdge()->getTwin()->getOrigin());
-	FTIPolyVertex Vertex1 = *( IndexEdge->getTwin()->getOrigin());
-	FTIPolyVertex Vertex2 = *( IndexEdge->getPrev()->getOrigin());
+	//PolyVertex Vertex1 = *( i_poInputVertex->getEdge()->getTwin()->getOrigin());
+	PolyVertex Vertex1 = *( IndexEdge->getTwin()->getOrigin());
+	PolyVertex Vertex2 = *( IndexEdge->getPrev()->getOrigin());
 
 	//Get coords of verticies to created edges.
 	double *Vertex0Node = i_poInputVertex->getNode();
@@ -88,7 +86,7 @@ unsigned int FTIMonotonePolygon::VertexKind(FTIPolyVertex *i_poInputVertex, FTIP
 //====================================================================
 // DESCRIPTION: Public funtion to call private Fix Up function
 //====================================================================
-void FTIMonotonePolygon::FixUp(FTIEdgeNode *i_poEdgeNode, FTIPolyVertex *i_poVertex)
+void MonotonePolygon::FixUp(EdgeNode *i_poEdgeNode, PolyVertex *i_poVertex)
 {// Calls private fix up function which can alter the DCEL
 	FixUp(i_poEdgeNode, i_poVertex, m_poPolygonDCEL);
 };
@@ -98,16 +96,16 @@ void FTIMonotonePolygon::FixUp(FTIEdgeNode *i_poEdgeNode, FTIPolyVertex *i_poVer
 // checks to see if helper vertex of an edge is a "merge vertex" and if so,
 // we insert an edge from the helper vertex to the query vertex.
 //====================================================================
-void FTIMonotonePolygon::FixUp(FTIEdgeNode *i_poEdgeNode, FTIPolyVertex *i_poVertex, FTIDblyConnectedEdgeList *&i_poDCEL)
+void MonotonePolygon::FixUp(EdgeNode *i_poEdgeNode, PolyVertex *i_poVertex, DblyConnectedEdgeList *&i_poDCEL)
 {
 	unsigned int TYPE = VertexKind(i_poEdgeNode->getHelper(), i_poVertex->getEdge()->getFace());
 
 	if (TYPE == MERGE_VERTEX)
 	{
-		FTIPolyVertex* HelperVertex = i_poEdgeNode->getHelper();
+		PolyVertex* HelperVertex = i_poEdgeNode->getHelper();
 
-		FTIPolyVertex* MaxVert = GetMax(HelperVertex, i_poVertex);
-		FTIPolyVertex* MinVert = GetMin(HelperVertex, i_poVertex);
+		PolyVertex* MaxVert = GetMax(HelperVertex, i_poVertex);
+		PolyVertex* MinVert = GetMin(HelperVertex, i_poVertex);
 		i_poDCEL -> InsertNewEdge(MaxVert, MinVert);
 	};
 };
@@ -116,10 +114,10 @@ void FTIMonotonePolygon::FixUp(FTIEdgeNode *i_poEdgeNode, FTIPolyVertex *i_poVer
 // DESCRIPTION: Functions that will handle start vertices
 // INPUT: Pointer to vertex, pointer to reference to the search tree.
 //====================================================================
-void FTIMonotonePolygon::HandleStartVertex(FTIPolyVertex *i_poInputVertex, FTIEdgeSearchTree *&i_poTree)
+void MonotonePolygon::HandleStartVertex(PolyVertex *i_poInputVertex, EdgeSearchTree *&i_poTree)
 {
 	// insert both incident edges
-	FTIEdgeNode *pNewEdgeLeft = new FTIEdgeNode(i_poInputVertex->getEdge());
+	EdgeNode *pNewEdgeLeft = new EdgeNode(i_poInputVertex->getEdge());
 
 	// insert these nodes into the search tree
 	i_poTree->InsertEdgeNode(pNewEdgeLeft);
@@ -129,10 +127,10 @@ void FTIMonotonePolygon::HandleStartVertex(FTIPolyVertex *i_poInputVertex, FTIEd
 // DESCRIPTION: Functions that will handle end vertices
 // INPUT: Pointer to vertex, pointer to reference to the search tree.
 //====================================================================
-void FTIMonotonePolygon::HandleEndVertex(FTIPolyVertex *i_poInputVertex, FTIEdgeSearchTree *&i_poTree)
+void MonotonePolygon::HandleEndVertex(PolyVertex *i_poInputVertex, EdgeSearchTree *&i_poTree)
 {
 	// Find corresponding edge node in search tree to edge leading into vertex
-	FTIEdgeNode* PrevEdgeNode = i_poTree->FindEdgeNode(i_poInputVertex->getEdge()->getPrev());
+	EdgeNode* PrevEdgeNode = i_poTree->FindEdgeNode(i_poInputVertex->getEdge()->getPrev());
 
 	// if diagonal can be added, add it
 	FixUp(PrevEdgeNode, i_poInputVertex);
@@ -145,22 +143,22 @@ void FTIMonotonePolygon::HandleEndVertex(FTIPolyVertex *i_poInputVertex, FTIEdge
 // DESCRIPTION: Functions that will handle split vertices
 // INPUT: Pointer to vertex, pointer to reference to the search tree.
 //====================================================================
-void FTIMonotonePolygon::HandleSplitVertex(FTIPolyVertex *i_poInputVertex, FTIEdgeSearchTree *&i_poTree)
+void MonotonePolygon::HandleSplitVertex(PolyVertex *i_poInputVertex, EdgeSearchTree *&i_poTree)
 {
 	// Find edge closest to the left of the vertex
-	FTIEdgeNode* ClosestEdge = i_poTree->FindClosestLeft(i_poInputVertex);
+	EdgeNode* ClosestEdge = i_poTree->FindClosestLeft(i_poInputVertex);
 	// Get Helper vertex for this edge
-	FTIPolyVertex* HelperVertex = ClosestEdge->getHelper();
+	PolyVertex* HelperVertex = ClosestEdge->getHelper();
 
 	// Insert diagonal from helper to this vertex
-	FTIPolyVertex* MaxVert = GetMax(HelperVertex, i_poInputVertex);
-	FTIPolyVertex* MinVert = GetMin(HelperVertex, i_poInputVertex);
+	PolyVertex* MaxVert = GetMax(HelperVertex, i_poInputVertex);
+	PolyVertex* MinVert = GetMin(HelperVertex, i_poInputVertex);
 	m_poPolygonDCEL -> InsertNewEdge(MaxVert, MinVert);
 
 	ClosestEdge->setHelper(i_poInputVertex);
 
 	// Find both edges incident to the vertex and add them to search tree
-	FTIEdgeNode *pNewEdgeRight = new FTIEdgeNode(i_poInputVertex->getEdge());
+	EdgeNode *pNewEdgeRight = new EdgeNode(i_poInputVertex->getEdge());
 	// set right edge helper to current vertex
 	pNewEdgeRight -> setHelper(i_poInputVertex);
 
@@ -172,11 +170,11 @@ void FTIMonotonePolygon::HandleSplitVertex(FTIPolyVertex *i_poInputVertex, FTIEd
 // DESCRIPTION: Functions that will handle merge vertices
 // INPUT: Pointer to vertex, pointer to reference to the search tree.
 //====================================================================
-void FTIMonotonePolygon::HandleMergeVertex(FTIPolyVertex *i_poInputVertex, FTIEdgeSearchTree *&i_poTree)
+void MonotonePolygon::HandleMergeVertex(PolyVertex *i_poInputVertex, EdgeSearchTree *&i_poTree)
 {
 	// get edge nodes incident to vertex. They will both be in the search tree
-	//FTIEdgeNode* pLeftEdgeNode = i_poTree->FindEdgeNode(i_poInputVertex->getEdge());
-	FTIEdgeNode* pRightEdgeNode = i_poTree->FindEdgeNode(i_poInputVertex->getEdge()->getPrev());
+	//EdgeNode* pLeftEdgeNode = i_poTree->FindEdgeNode(i_poInputVertex->getEdge());
+	EdgeNode* pRightEdgeNode = i_poTree->FindEdgeNode(i_poInputVertex->getEdge()->getPrev());
 
 	// if diagonal can be added to the right edge node, add it
 	FixUp(pRightEdgeNode, i_poInputVertex);
@@ -185,7 +183,7 @@ void FTIMonotonePolygon::HandleMergeVertex(FTIPolyVertex *i_poInputVertex, FTIEd
 	i_poTree->RemoveEdgeNode(pRightEdgeNode);
 
 	// Find edge closest to the left of the vertex
-	FTIEdgeNode* ClosestEdge = i_poTree->FindClosestLeft(i_poInputVertex);
+	EdgeNode* ClosestEdge = i_poTree->FindClosestLeft(i_poInputVertex);
 	// Insert Edge if Possible
 	if(ClosestEdge)
 		FixUp(ClosestEdge, i_poInputVertex);
@@ -198,12 +196,12 @@ void FTIMonotonePolygon::HandleMergeVertex(FTIPolyVertex *i_poInputVertex, FTIEd
 // DESCRIPTION: Functions that will handle regular vertices on left chain
 // INPUT: Pointer to vertex, pointer to reference to the search tree.
 //====================================================================
-void FTIMonotonePolygon::HandleRegularVertexLeft(FTIPolyVertex *i_poInputVertex, FTIEdgeSearchTree *&i_poTree)
+void MonotonePolygon::HandleRegularVertexLeft(PolyVertex *i_poInputVertex, EdgeSearchTree *&i_poTree)
 {
 	// Find edge leading into current vertex
-	// FTIHalfEdge* PreviousEdge = i_poInputVertex->getEdge()->getPrev();
+	// HalfEdge* PreviousEdge = i_poInputVertex->getEdge()->getPrev();
 	// Find corresponding edge node in search tree.
-	FTIEdgeNode* PrevEdgeNode = i_poTree->FindEdgeNode(i_poInputVertex->getEdge()->getPrev());
+	EdgeNode* PrevEdgeNode = i_poTree->FindEdgeNode(i_poInputVertex->getEdge()->getPrev());
 
 	// if diagonal can be added, add it
 	FixUp(PrevEdgeNode, i_poInputVertex);
@@ -217,10 +215,10 @@ void FTIMonotonePolygon::HandleRegularVertexLeft(FTIPolyVertex *i_poInputVertex,
 // DESCRIPTION: Functions that will handle regular vertices on right chain
 // INPUT: Pointer to vertex, pointer to reference to the search tree.
 //====================================================================
-void FTIMonotonePolygon::HandleRegularVertexRight(FTIPolyVertex *i_poInputVertex, FTIEdgeSearchTree *&i_poTree)
+void MonotonePolygon::HandleRegularVertexRight(PolyVertex *i_poInputVertex, EdgeSearchTree *&i_poTree)
 {
 	// Find edge closest to the left of the vertex
-	FTIEdgeNode* ClosestEdge = i_poTree->FindClosestLeft(i_poInputVertex);
+	EdgeNode* ClosestEdge = i_poTree->FindClosestLeft(i_poInputVertex);
 
 	// Insert Edge if Possible
 	if(ClosestEdge)
@@ -232,7 +230,7 @@ void FTIMonotonePolygon::HandleRegularVertexRight(FTIPolyVertex *i_poInputVertex
 //====================================================================
 // DESCRIPTION: Public Function to make monotono
 //====================================================================
-void FTIMonotonePolygon::MakeMonotone()
+void MonotonePolygon::MakeMonotone()
 {
 	MakeMonotone(m_poPolygonDCEL);
 };
@@ -240,20 +238,20 @@ void FTIMonotonePolygon::MakeMonotone()
 //====================================================================
 // DESCRIPTION: Private function to makemonotone algorithm.
 //====================================================================
-void FTIMonotonePolygon::MakeMonotone(FTIDblyConnectedEdgeList *&i_poDCEL)
+void MonotonePolygon::MakeMonotone(DblyConnectedEdgeList *&i_poDCEL)
 {
 	// Extract vertices from DCEL
-	std::vector<FTIPolyVertex*> SortedVertices = i_poDCEL->getVertices();	
+	std::vector<PolyVertex*> SortedVertices = i_poDCEL->getVertices();	
 
 	// Store them in a sorted (top to bottom) list since we do not need to add any more vertices
-	std::sort(SortedVertices.begin(), SortedVertices.end(), FTIPolyVertex::FTIPolyVertexDescendingOrder());
+	std::sort(SortedVertices.begin(), SortedVertices.end(), PolyVertex::PolyVertexDescendingOrder());
 
 	// Get number of vertices.
 	int nNumVertex = SortedVertices.size();
 
 	//std::cout << "Creation of search tree \n" << std::endl;
 	// initialize an empty search tree
-	FTIEdgeSearchTree *pEdgeSearchTree = new FTIEdgeSearchTree();
+	EdgeSearchTree *pEdgeSearchTree = new EdgeSearchTree();
 
 	for(int i = 0; i < nNumVertex; i++)
 	{
