@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-c -Wall -g
 LDFLAGS=
-SOURCES= FTIDblyConnectedEdgeList.cpp FTIEdgeSearchTree.cpp FTIMonotonePolygon.cpp FTIMonotoneTriangulation.cpp main.cpp
+SOURCES= DblyConnectedEdgeList.cpp EdgeSearchTree.cpp MonotonePolygon.cpp MonotoneTriangulation.cpp main.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=PolygonTriangulation
 
